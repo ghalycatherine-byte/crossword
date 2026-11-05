@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مسابقة الأسبوع: الرسالة إلى العبرانيين – الأصحاح الأول</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f6f1e7; --paper:#fffdf8; --ink:#2b2118; --muted:#7a6a58;
+    --accent:#8c2f1b; --accent-soft:#f3dcd2; --gold:#c9963b;
+    --block:#2b2118; --line:#d8cbb6; --wa:#1f9d55;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Cairo",system-ui,sans-serif;line-height:1.6}
+  .wrap{max-width:920px;margin:0 auto;padding:20px 16px 48px}
+  header{text-align:center;margin-bottom:18px}
+  .cross{font-size:26px;color:var(--gold);letter-spacing:6px}
+  h1{font-size:clamp(20px,4.5vw,28px);margin:4px 0 2px;font-weight:800}
+  .sub{color:var(--muted);font-size:15px;margin:0}
+  .note{display:inline-block;margin:10px 0 0;background:#fbe9c9;border-radius:999px;padding:4px 14px;font-size:14px;font-weight:600}
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 1px 0 rgba(0,0,0,.03)}
+  .name-row{display:flex;gap:10px;align-items:center;margin-bottom:16px}
+  .name-row label{font-weight:700;white-space:nowrap}
+  .name-row input{flex:1;font:inherit;font-size:16px;padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff}
+  .name-row input:focus{outline:none;border-color:var(--accent)}
+  .layout{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:start}
+  @media (max-width:760px){.layout{grid-template-columns:1fr}}
+  .board-wrap{display:flex;flex-direction:column;align-items:center;gap:10px}
+  .current{min-height:48px;width:100%;background:var(--accent-soft);border-radius:10px;padding:8px 12px;font-size:15px;text-align:center}
+  .current b{color:var(--accent)}
+  .board{display:grid;gap:0;direction:rtl;border:2px solid var(--block);background:var(--block);touch-action:manipulation}
+  .cell{position:relative;width:var(--cs);height:var(--cs);background:var(--block)}
+  .cell.open{background:#fff;outline:1px solid #bfb19a;outline-offset:-0.5px}
+  .cell input{position:absolute;inset:0;width:100%;height:100%;border:0;background:transparent;text-align:center;
+    font:700 calc(var(--cs)*.52)/1 "Cairo",sans-serif;color:var(--ink);padding:calc(var(--cs)*.12) 0 0;caret-color:transparent;border-radius:0}
+  .cell input:focus{outline:none}
+  .cell.word{background:#fbe9c9}
+  .cell.focus{background:var(--gold)}
+  .cell .n{position:absolute;top:1px;right:3px;font-size:calc(var(--cs)*.26);font-weight:700;color:var(--muted);pointer-events:none;line-height:1.1}
+  .cell.focus .n{color:#fff}
+  .progress{font-size:14px;color:var(--muted)}
+  .clues h2{font-size:17px;margin:4px 0 6px;color:var(--accent);border-bottom:2px solid var(--accent-soft);padding-bottom:4px}
+  .clues ol{list-style:none;margin:0 0 14px;padding:0}
+  .clues li{padding:6px 8px;border-radius:8px;cursor:pointer;font-size:15px;display:flex;gap:8px}
+  .clues li:hover{background:#f4ede0}
+  .clues li.active{background:var(--accent-soft)}
+  .clues li.done{color:var(--muted)}
+  .clues li.done .num::after{content:" ✓";color:var(--wa)}
+  .clues .num{font-weight:800;min-width:30px;color:var(--accent)}
+  .clues .len{color:var(--muted);font-size:13px;white-space:nowrap}
+  .bank{background:#fbf4e6;border:1px dashed var(--gold);border-radius:12px;padding:10px 12px;margin-bottom:14px}
+  .bank b{display:block;font-size:15px;color:var(--accent);margin-bottom:6px}
+  .bank span{display:inline-block;background:#fff;border:1px solid var(--line);border-radius:999px;padding:2px 12px;margin:3px;font-weight:700;font-size:15px}
+  .bank span.used{text-decoration:line-through;color:var(--muted);opacity:.6}
+  .send{margin-top:18px;text-align:center}
+  .btn{display:inline-flex;align-items:center;gap:8px;font:700 17px "Cairo",sans-serif;border:0;border-radius:12px;padding:12px 22px;cursor:pointer;text-decoration:none}
+  .btn-wa{background:var(--wa);color:#fff}
+  .btn-wa.disabled{opacity:.5;pointer-events:none}
+  .btn-ghost{background:transparent;color:var(--muted);font-size:14px;padding:6px 10px;text-decoration:underline}
+  .hint{font-size:13px;color:var(--muted);margin-top:8px}
+  .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:8px 16px;border-radius:10px;font-size:14px;opacity:0;transition:.25s;pointer-events:none}
+  .toast.show{opacity:1}
+  .preview{display:none;white-space:pre-wrap;text-align:right;background:#f4ede0;border-radius:10px;padding:10px;font-size:14px;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="cross">✥</div>
+    <h1 id="title"></h1>
+    <p class="sub">املأ الشبكة، اكتب اسمك، وابعت الحل للخادم على واتساب</p>
+    <p class="note" id="note"></p>
+  </header>
+
+  <div class="card">
+    <div class="name-row">
+      <label for="name">الاسم:</label>
+      <input id="name" placeholder="اكتب اسمك هنا" autocomplete="name">
+    </div>
+
+    <div class="layout">
+      <div class="board-wrap">
+        <div class="current" id="current">اضغط على أي مربع أو تعريف لتبدأ</div>
+        <div class="board" id="board"></div>
+        <div class="progress" id="progress"></div>
+      </div>
+      <div class="clues">
+        <div class="bank" id="bank"></div>
+        <h2>أفقي</h2><ol id="across"></ol>
+        <h2>رأسي</h2><ol id="down"></ol>
+      </div>
+    </div>
+
+    <div class="send">
+      <a class="btn btn-wa disabled" id="wa" href="#" target="_blank" rel="noopener">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5 0a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2s.2-1.1.2-1.2-.2-.2-.4-.3z"/></svg>
+        ابعت الحل على واتساب
+      </a>
+      <div class="hint" id="hint">اكتب اسمك الأول عشان يتفعّل زرار الإرسال</div>
+      <button class="btn btn-ghost" id="copy" type="button">أو انسخ الحل وابعته بنفسك</button>
+      <button class="btn btn-ghost" id="clear" type="button">امسح الشبكة</button>
+      <div class="preview" id="preview"></div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const PUZZLE = {"id":"daa52b7e","title":"مسابقة الأسبوع: الرسالة إلى العبرانيين – الأصحاح الأول","note":"كمّل الآية بالكلمة الناقصة (من الأصحاح الأول) واكتبها من غير (ال)","bank":["ملائكة","ملك","أرض","ابن","نار","أنبياء","خلاص","ثوب","مجد","سماوات"],"rows":8,"cols":13,"cells":[{"r":3,"c":4,"n":6},{"r":3,"c":5,"n":0},{"r":3,"c":6,"n":0},{"r":3,"c":7,"n":0},{"r":3,"c":8,"n":0},{"r":3,"c":9,"n":0},{"r":1,"c":8,"n":3},{"r":2,"c":8,"n":0},{"r":4,"c":8,"n":0},{"r":5,"c":8,"n":0},{"r":6,"c":8,"n":0},{"r":1,"c":7,"n":2},{"r":1,"c":9,"n":0},{"r":1,"c":10,"n":0},{"r":1,"c":11,"n":0},{"r":1,"c":12,"n":0},{"r":0,"c":10,"n":1},{"r":2,"c":10,"n":0},{"r":4,"c":4,"n":0},{"r":5,"c":4,"n":0},{"r":5,"c":6,"n":8},{"r":5,"c":7,"n":0},{"r":4,"c":2,"n":7},{"r":4,"c":3,"n":0},{"r":2,"c":2,"n":5},{"r":3,"c":2,"n":0},{"r":6,"c":6,"n":0},{"r":7,"c":6,"n":0},{"r":2,"c":0,"n":4},{"r":2,"c":1,"n":0},{"r":2,"c":3,"n":0}],"across":[{"num":2,"r":1,"c":7,"len":6,"clue":"والـ... هي عمل يديك (ع١٠)"},{"num":4,"r":2,"c":0,"len":4,"clue":"لأجل العتيدين أن يرثوا الـ... (ع١٤)"},{"num":6,"r":3,"c":4,"len":6,"clue":"الله، بعد ما كلم الآباء بالـ... قديمًا (ع١)"},{"num":7,"r":4,"c":2,"len":3,"clue":"الصانع ملائكته رياحًا وخدامه لهيب ... (ع٧)"},{"num":8,"r":5,"c":6,"len":3,"clue":"قضيب استقامة قضيب ...ك (ع٨)"}],"down":[{"num":1,"r":0,"c":10,"len":3,"clue":"وكلها كـ... تبلى (ع١١)"},{"num":3,"r":1,"c":8,"len":6,"clue":"صائرًا أعظم من الـ... (ع٤)"},{"num":5,"r":2,"c":2,"len":3,"clue":"كلمنا في هذه الأيام الأخيرة في ...ه (ع٢)"},{"num":6,"r":3,"c":4,"len":3,"clue":"وأنت يا رب في البدء أسست الـ... (ع١٠)"},{"num":8,"r":5,"c":6,"len":3,"clue":"وهو بهاء ...ه (ع٣)"}]};
+const WHATSAPP_NUMBER = ""; // international format without + (e.g. 2010xxxxxxxx). Empty = choose contact.
+
+const $ = id => document.getElementById(id);
+const store = { get(k){try{return localStorage.getItem(k)}catch(e){return null}}, set(k,v){try{localStorage.setItem(k,v)}catch(e){}} };
+const SKEY = "xw:" + PUZZLE.id;
+$("title").textContent = PUZZLE.title;
+if (PUZZLE.bank) $("bank").innerHTML = "<b>بنك الكلمات</b>" + PUZZLE.bank.map(w => `<span data-w="${w}">${w}</span>`).join(""); else $("bank").remove();
+if (PUZZLE.note) $("note").textContent = PUZZLE.note; else $("note").remove();
+
+// ---- build model
+const cellMap = new Map();
+PUZZLE.cells.forEach(c => cellMap.set(c.r + "," + c.c, c));
+const words = [];
+for (const d of ["across","down"]) for (const w of PUZZLE[d]) {
+  const cells = [];
+  for (let k=0;k<w.len;k++) cells.push(d==="across" ? w.r+","+(w.c+k) : (w.r+k)+","+w.c);
+  words.push({...w, dir:d, cells, id:d+w.num});
+}
+const wordsOf = key => words.filter(w => w.cells.includes(key));
+
+// ---- sizing
+function sizeBoard(){
+  const avail = Math.min(window.innerWidth - 56, 520);
+  const cs = Math.max(26, Math.min(46, Math.floor(avail / PUZZLE.cols)));
+  document.documentElement.style.setProperty("--cs", cs + "px");
+}
+sizeBoard(); addEventListener("resize", sizeBoard);
+
+// ---- board
+const board = $("board");
+board.style.gridTemplateColumns = `repeat(${PUZZLE.cols}, var(--cs))`;
+const inputs = new Map(), cellEls = new Map();
+const saved = JSON.parse(store.get(SKEY) || "{}");
+for (let r=0;r<PUZZLE.rows;r++) for (let c=0;c<PUZZLE.cols;c++){
+  const key = r+","+c, data = cellMap.get(key);
+  const el = document.createElement("div");
+  el.className = "cell" + (data ? " open" : "");
+  if (data){
+    if (data.n){ const n=document.createElement("span"); n.className="n"; n.textContent=data.n; el.appendChild(n); }
+    const inp = document.createElement("input");
+    inp.setAttribute("aria-label", "مربع");
+    inp.autocomplete="off"; inp.spellcheck=false; inp.setAttribute("autocapitalize","off");
+    inp.value = (saved.cells && saved.cells[key]) || "";
+    inp.addEventListener("focus", () => onFocus(key));
+    inp.addEventListener("mousedown", e => { if (document.activeElement===inp){ e.preventDefault(); toggleDir(key);} });
+    inp.addEventListener("input", () => onInput(key));
+    inp.addEventListener("keydown", e => onKey(e, key));
+    el.appendChild(inp); inputs.set(key, inp);
+  }
+  cellEls.set(key, el); board.appendChild(el);
+}
+if (saved.name) $("name").value = saved.name;
+
+// ---- clues
+for (const d of ["across","down"]){
+  const ol = $(d);
+  for (const w of words.filter(x=>x.dir===d)){
+    const li = document.createElement("li"); li.id = "clue-"+w.id;
+    li.innerHTML = `<span class="num">${w.num}</span><span>${esc(w.clue)} <span class="len">(${w.len} حروف)</span></span>`;
+    li.addEventListener("click", () => { active = w; inputs.get(firstEmpty(w)).focus(); render(); });
+    ol.appendChild(li);
+  }
+}
+function esc(s){ return s.replace(/[&<>"]/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch])); }
+
+// ---- interaction
+let active = null, focusKey = null;
+function onFocus(key){
+  focusKey = key;
+  if (!active || !active.cells.includes(key)){
+    const opts = wordsOf(key);
+    active = opts.find(w => w.dir === (active ? active.dir : "across")) || opts[0];
+  }
+  render();
+}
+function toggleDir(key){
+  const opts = wordsOf(key);
+  if (opts.length > 1){ active = opts.find(w => w !== active); render(); }
+}
+function firstEmpty(w){ return w.cells.find(k => !inputs.get(k).value) || w.cells[0]; }
+function move(step){
+  if (!active) return;
+  const i = active.cells.indexOf(focusKey), j = i + step;
+  if (j >= 0 && j < active.cells.length) inputs.get(active.cells[j]).focus();
+}
+function onInput(key){
+  const inp = inputs.get(key);
+  const chars = [...inp.value.replace(/\s/g,"")];
+  inp.value = chars.length ? chars[chars.length-1] : "";
+  save(); render();
+  if (inp.value) move(1);
+}
+function onKey(e, key){
+  const inp = inputs.get(key);
+  if (e.key === "Backspace" && !inp.value){ e.preventDefault(); move(-1); const k = focusKey; inputs.get(k).value=""; save(); render(); }
+  else if (e.key === "ArrowLeft"){ e.preventDefault(); setDirAndGo(key,"across",1); }
+  else if (e.key === "ArrowRight"){ e.preventDefault(); setDirAndGo(key,"across",-1); }
+  else if (e.key === "ArrowDown"){ e.preventDefault(); setDirAndGo(key,"down",1); }
+  else if (e.key === "ArrowUp"){ e.preventDefault(); setDirAndGo(key,"down",-1); }
+  else if (e.key === "Tab"){ e.preventDefault(); const i = words.indexOf(active); active = words[(i + (e.shiftKey?-1:1) + words.length) % words.length]; inputs.get(firstEmpty(active)).focus(); render(); }
+}
+function setDirAndGo(key, dir, step){
+  const w = wordsOf(key).find(x => x.dir === dir);
+  if (w){ active = w; move(step); render(); }
+}
+
+// ---- render & state
+function letter(k){ return inputs.get(k).value || ""; }
+function render(){
+  cellEls.forEach(el => el.classList.remove("word","focus"));
+  if (active) active.cells.forEach(k => cellEls.get(k).classList.add("word"));
+  if (focusKey) cellEls.get(focusKey).classList.add("focus");
+  document.querySelectorAll(".clues li").forEach(li => li.classList.remove("active"));
+  let done = 0;
+  for (const w of words){
+    const full = w.cells.every(k => letter(k));
+    if (full) done++;
+    $("clue-"+w.id).classList.toggle("done", full);
+  }
+  if (PUZZLE.bank){
+    const typed = words.filter(w => w.cells.every(k => letter(k))).map(w => w.cells.map(letter).join(""));
+    document.querySelectorAll("#bank span").forEach(sp => sp.classList.toggle("used", typed.includes(sp.dataset.w)));
+  }
+  if (active){
+    $("clue-"+active.id).classList.add("active");
+    $("current").innerHTML = `<b>${active.dir==="across"?"أفقي":"رأسي"} ${active.num}:</b> ${esc(active.clue)}`;
+  }
+  $("progress").textContent = `خلّصت ${done} من ${words.length} كلمة`;
+  updateSend();
+}
+function save(){
+  const cells = {}; inputs.forEach((inp,k) => { if (inp.value) cells[k] = inp.value; });
+  store.set(SKEY, JSON.stringify({cells, name: $("name").value}));
+}
+function message(){
+  const name = $("name").value.trim();
+  const line = w => `${w.num}) ${w.cells.map(k => letter(k) || "؟").join("")}`;
+  return [
+    `✥ ${PUZZLE.title}`,
+    `الاسم: ${name}`,
+    "",
+    "*أفقي*",
+    ...words.filter(w=>w.dir==="across").map(line),
+    "",
+    "*رأسي*",
+    ...words.filter(w=>w.dir==="down").map(line)
+  ].join("\n");
+}
+function updateSend(){
+  const ok = $("name").value.trim().length > 1;
+  const a = $("wa");
+  a.classList.toggle("disabled", !ok);
+  $("hint").style.display = ok ? "none" : "block";
+  a.href = "https://wa.me/" + (WHATSAPP_NUMBER || "") + "?text=" + encodeURIComponent(message());
+}
+$("name").addEventListener("input", () => { save(); updateSend(); });
+$("copy").addEventListener("click", async () => {
+  const txt = message();
+  try { await navigator.clipboard.writeText(txt); toast("اتنسخ ✓ الصقه في واتساب للخادم"); }
+  catch(e){ const p = $("preview"); p.style.display="block"; p.textContent = txt; toast("انسخ النص اللي ظهر تحت"); }
+});
+let clearArmed = false;
+$("clear").addEventListener("click", () => {
+  if (!clearArmed){ clearArmed = true; $("clear").textContent = "متأكد؟ اضغط تاني للمسح"; setTimeout(()=>{clearArmed=false; $("clear").textContent="امسح الشبكة";}, 3000); return; }
+  inputs.forEach(i => i.value=""); clearArmed=false; $("clear").textContent="امسح الشبكة"; save(); render();
+});
+function toast(t){ const el=$("toast"); el.textContent=t; el.classList.add("show"); setTimeout(()=>el.classList.remove("show"), 2200); }
+render();
+</script>
+</body>
+</html>
